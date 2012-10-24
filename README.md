@@ -4,17 +4,18 @@ AS3935-Arduino-Library
 AS3935 Franklin Lightning Sensor™ IC by AMS Arduino library
 
 Link to manufacturer site:
-	http://www.ams.com/eng/Products/RF-Products/Lightning-Sensor/AS3935
+: http://www.ams.com/eng/Products/RF-Products/Lightning-Sensor/AS3935
 Link to TAUTIC ELECTRONICS LLC Lightning Sensor Board on tindie.com:
-	https://tindie.com/TAUTIC/as3935-lightning-sensor-board/
+: https://tindie.com/TAUTIC/as3935-lightning-sensor-board/
 Link to my blog:
-	http://www.rrkb.lv/musings
+: http://www.rrkb.lv/musings
 
 To use is chip/board, you will definitely need to read it's datasheet, so
 I am not going to dwell into details of tuning and using this small gem.
 
-Short reference of functions:
+Short function reference:
 
+<pre>
 void registerWrite(byte reg, byte mask, byte data)
 	write to specified register specified data using specified bitmask,
 	the rest of the register remains intact
@@ -65,4 +66,4 @@ int setWatchdogThreshold(int wdth)
 	set watchdog threshold value
 void clearStats()
 	clear internal accumulated lightning statistics
-
+</pre>
