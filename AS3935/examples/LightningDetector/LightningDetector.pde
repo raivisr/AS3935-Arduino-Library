@@ -45,12 +45,10 @@ volatile int AS3935IrqTriggered;
 // attachInterrupt in sketch to detect interrupt
 // Library internally polls this pin when doing calibration, so being an interrupt pin
 // is not a requirement
-AS3935 AS3935(SPItransfer,53,2);
+AS3935 AS3935(SPItransfer,SS,2);
 
 void setup()
 {
-  pinMode(13,OUTPUT);
-  digitalWrite(13,LOW);
   Serial.begin(9600);
   // first begin, then set parameters
   SPI.begin();
@@ -60,6 +58,8 @@ void setup()
   // but never use 500kHz, because that will cause interference
   // to lightning detection circuit
   SPI.setClockDivider(SPI_CLOCK_DIV16);
+  // and chip is MSB first
+  SPI.setBitOrder(MSBFIRST);
   // reset all internal register values to defaults
   AS3935.reset();
   // and run calibration
@@ -81,7 +81,11 @@ void setup()
   // notifies your code
   // demo is written and tested on ChipKit MAX32, irq pin is connected to max32 pin 2, that corresponds to interrupt 1
   // look up what pins can be used as interrupts on your specific board and how pins map to int numbers
+
+  // ChipKit Max32 - irq connected to pin 2
   attachInterrupt(1,AS3935Irq,RISING);
+  // uncomment line below and comment out line above for Arduino Mega 2560, irq still connected to pin 2
+  // attachInterrupt(0,AS3935Irq,RISING);
 }
 
 void loop()
