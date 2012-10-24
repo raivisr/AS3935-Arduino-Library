@@ -20,7 +20,12 @@
 #ifndef AS3935_h
 #define AS3935_h
 
-#include "WProgram.h"
+#if defined(ARDUINO) && ARDUINO >= 100
+	#include "Arduino.h"
+#else
+	#include "WProgram.h"
+#endif
+
 #include <limits.h>
 
 // register access macros - register address, bitmask
