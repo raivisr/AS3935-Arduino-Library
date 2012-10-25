@@ -115,7 +115,7 @@ void loop()
         Serial.println("Storm overhead, watch out!");
       if (strokeDistance == 63)
         Serial.println("Out of range lightning detected.");
-      if (strokeDistance < 63 && strokeDistance > 1);
+      if (strokeDistance < 63 && strokeDistance > 1)
       {
         Serial.print("Lightning detected ");
         Serial.print(strokeDistance,DEC);
