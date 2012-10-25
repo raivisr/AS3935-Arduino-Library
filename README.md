@@ -13,6 +13,10 @@ Link to my blog:
 To use is chip/board, you will definitely need to read it's datasheet, so
 I am not going to dwell into details of tuning and using this small gem.
 
+Tested with Arduino 1.0.1 on Arduino Mega 2560 and mpide-0023-20120903-newlib on
+chipKIT Max32 (earlier mplab releases have crippled c/c++ library support and
+will not work).
+
 Short function reference:
 
 void registerWrite(byte reg, byte mask, byte data)
