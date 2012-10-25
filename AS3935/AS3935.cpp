@@ -38,12 +38,21 @@ byte AS3935::_rawRegisterRead(byte reg)
 	return regval;	
 }
 
+byte AS3935::_ffsz(byte mask)
+{
+	byte i = 0;
+	if (mask)
+		for (i = 1; ~mask & 1; i++)
+			mask >>= 1;
+	return i;
+}
+
 void AS3935::registerWrite(byte reg, byte mask, byte data)
 {
 	byte regval = _rawRegisterRead(reg);
 	regval &= ~(mask);
 	if (mask)
-		regval |= (data << (ffs(mask)-1));
+		regval |= (data << (_ffsz(mask)-1));
 	else
 		regval |= data;
 	digitalWrite(_CSPin,LOW);
@@ -57,7 +66,7 @@ byte AS3935::registerRead(byte reg, byte mask)
 	byte regval = _rawRegisterRead(reg);
 	regval = regval & mask;
 	if (mask)
-		regval >>= (ffs(mask)-1);
+		regval >>= (_ffsz(mask)-1);
 	return regval;
 }
 
