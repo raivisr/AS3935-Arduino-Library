@@ -16,6 +16,21 @@ I am not going to dwell into details of tuning and using this small gem.
 Tested with Arduino 1.0.1 on Arduino Mega 2560 and mpide-0023-20120903-newlib on
 chipKIT Max32.
 
+Connections between breakout by TAUTIC LLC and chipKIT Max32 or Arduino Mega 2560
+for example code to work:
+breakout pin		arduino pin
+VDD			3.3V - Max32, 5V - Mega 2560
+GND			GND
+MOSI			51
+MISO			50
+SCLK			52
+IRQ			2
+SI			GND
+CS			53
+
+NB! on Mega 2560 you have to comment out attachInterrupt(0,AS3935Irq,RISING); line and
+uncomment attachInterrupt(0,AS3935Irq,RISING); line
+
 Short function reference:
 
 void registerWrite(byte reg, byte mask, byte data)

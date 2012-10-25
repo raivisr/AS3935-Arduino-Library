@@ -108,7 +108,7 @@ void loop()
     if (irqSource & 0b1000)
     {
       // need to find how far that lightning stroke, function returns approximate distance in kilometers,
-      // where value 1 represents storm in detectors near victinity, and 63 - very distant out of range stroke
+      // where value 1 represents storm in detector's near victinity, and 63 - very distant, out of range stroke
       // everything in between is just distance in kilometers
       int strokeDistance = AS3935.lightningDistanceKm();
       if (strokeDistance == 1)
