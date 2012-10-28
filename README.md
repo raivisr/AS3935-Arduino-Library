@@ -8,9 +8,11 @@ Link to manufacturer site:
 &nbsp;&nbsp;&nbsp;&nbsp;http://www.ams.com/eng/Products/RF-Products/Lightning-Sensor/AS3935
 
 Link to TAUTIC ELECTRONICS LLC Lightning Sensor Board on tindie.com:
+
 &nbsp;&nbsp;&nbsp;&nbsp;https://tindie.com/TAUTIC/as3935-lightning-sensor-board/
 
 Link to my blog:
+
 &nbsp;&nbsp;&nbsp;&nbsp;http://www.rrkb.lv/musings
 
 To use is chip/board, you will definitely need to read it's datasheet, so
