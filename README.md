@@ -35,7 +35,7 @@ for example code to work:
 	SI              GND
 	CS              53
 
-NB! on Mega 2560 you have to comment out attachInterrupt(0,AS3935Irq,RISING); line and
+NB! on Mega 2560 you have to comment out attachInterrupt(1,AS3935Irq,RISING); line and
 uncomment attachInterrupt(0,AS3935Irq,RISING); line
 
 Short function reference:
