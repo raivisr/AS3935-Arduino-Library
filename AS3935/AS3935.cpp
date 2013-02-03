@@ -24,9 +24,9 @@ AS3935::AS3935(byte (*SPItransfer)(byte),int csPin, int irq)
 	SPITransferFunc = SPItransfer;
 	_CSPin = csPin;
 	_IRQPin = irq;
+	digitalWrite(_CSPin,HIGH);
 	pinMode(_CSPin,OUTPUT);
 	pinMode(_IRQPin,INPUT);
-	digitalWrite(_CSPin,HIGH);
 }
 
 byte AS3935::_rawRegisterRead(byte reg)
