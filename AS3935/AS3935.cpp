@@ -29,13 +29,18 @@ AS3935::AS3935(byte (*SPItransfer)(byte),int csPin, int irq)
 	pinMode(_IRQPin,INPUT);
 }
 
-byte AS3935::_rawRegisterRead(byte reg)
+byte AS3935::_SPITransfer2(byte high, byte low)
 {
 	digitalWrite(_CSPin,LOW);
-	SPITransferFunc((reg & 0x3F) | 0x40);
-	byte regval = SPITransferFunc(0);
+	SPITransferFunc(high);
+	byte regval = SPITransferFunc(low);
 	digitalWrite(_CSPin,HIGH);
 	return regval;	
+}
+
+byte AS3935::_rawRegisterRead(byte reg)
+{
+	return _SPITransfer2((reg & 0x3F) | 0x40, 0);
 }
 
 byte AS3935::_ffsz(byte mask)
@@ -55,10 +60,7 @@ void AS3935::registerWrite(byte reg, byte mask, byte data)
 		regval |= (data << (_ffsz(mask)-1));
 	else
 		regval |= data;
-	digitalWrite(_CSPin,LOW);
-	SPITransferFunc(reg & 0x3F);
-	SPITransferFunc(regval);
-	digitalWrite(_CSPin,HIGH);
+	_SPITransfer2(reg & 0x3F, regval);
 }
 
 byte AS3935::registerRead(byte reg, byte mask)
@@ -72,10 +74,7 @@ byte AS3935::registerRead(byte reg, byte mask)
 
 void AS3935::reset()
 {
-	digitalWrite(_CSPin,LOW);
-	SPITransferFunc(0x3C);
-	SPITransferFunc(0x96);
-	digitalWrite(_CSPin,HIGH);
+	_SPITransfer2(0x3C, 0x96);
 	delay(2);
 }
 
@@ -125,11 +124,7 @@ bool AS3935::calibrate()
 	delay(2);
 	registerWrite(AS3935_DISP_LCO,0);
 	// and now do RCO calibration
-	digitalWrite(_CSPin,LOW);
-	SPITransferFunc(0x3D);
-	SPITransferFunc(0x96);
-	digitalWrite(_CSPin,HIGH);
-	delay(3);
+	powerUp();
 	// if error is over 109, we are outside allowed tuning range of +/-3.5%
 	return bestdiff > 109?false:true;
 }	
@@ -142,10 +137,7 @@ void AS3935::powerDown()
 void AS3935::powerUp()
 {
 	registerWrite(AS3935_PWD,0);
-	digitalWrite(_CSPin,LOW);
-	SPITransferFunc(0x3D);
-	SPITransferFunc(0x96);
-	digitalWrite(_CSPin,HIGH);
+	_SPITransfer2(0x3D, 0x96);
 	delay(3);
 }
 
