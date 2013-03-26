@@ -1,6 +1,7 @@
 /*
   LightningDetector.pde - AS3935 Franklin Lightning Sensor™ IC by AMS library demo code
   Copyright (c) 2012 Raivis Rengelis (raivis [at] rrkb.lv). All rights reserved.
+  Modified in 2013 for I2C by Luka Mustafa - Musti (musti [at] wlan-si.net).
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -16,21 +17,12 @@
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-
-#include <SPI.h>
+// I2c library by Wayne Truchsess
+#include "I2C.h"
 #include <AS3935.h>
 
 void printAS3935Registers();
 
-// Function prototype that provides SPI transfer and is passed to
-// AS3935 to be used from within library, it is defined later in main sketch.
-// That is up to user to deal with specific implementation of SPI
-// Note that AS3935 library requires this function to have exactly this signature
-// and it can not be member function of any C++ class, which happens
-// to be almost any Arduino library
-// Please make sure your implementation of choice does not deal with CS pin,
-// library takes care about it on it's own
-byte SPItransfer(byte sendByte);
 
 // Iterrupt handler for AS3935 irqs
 // and flag variable that indicates interrupt has been triggered
@@ -39,27 +31,22 @@ byte SPItransfer(byte sendByte);
 void AS3935Irq();
 volatile int AS3935IrqTriggered;
 
-// First parameter - SPI transfer function, second - Arduino pin used for CS
-// and finally third argument - Arduino pin used for IRQ
-// It is good idea to chose pin that has interrupts attached, that way one can use
-// attachInterrupt in sketch to detect interrupt
-// Library internally polls this pin when doing calibration, so being an interrupt pin
-// is not a requirement
-AS3935 AS3935(SPItransfer,SS,2);
+// Library object initialization First argument is interrupt pin, second is device I2C address
+AS3935 AS3935(2,0);
 
 void setup()
 {
   Serial.begin(9600);
-  // first begin, then set parameters
-  SPI.begin();
-  // NB! chip uses SPI MODE1
-  SPI.setDataMode(SPI_MODE1);
-  // NB! max SPI clock speed that chip supports is 2MHz,
-  // but never use 500kHz, because that will cause interference
-  // to lightning detection circuit
-  SPI.setClockDivider(SPI_CLOCK_DIV16);
-  // and chip is MSB first
-  SPI.setBitOrder(MSBFIRST);
+  //I2C library initialization
+  I2c.begin();
+  I2c.pullup(true);
+  I2c.setSpeed(1); //400kHz
+  
+  // optional control of power for AS3935 via a PNP transistor
+  // very useful for lockup prevention and power saving
+  pinMode(4, OUTPUT);
+  digitalWrite(4, LOW);
+ 
   // reset all internal register values to defaults
   AS3935.reset();
   // and run calibration
@@ -83,9 +70,9 @@ void setup()
   // look up what pins can be used as interrupts on your specific board and how pins map to int numbers
 
   // ChipKit Max32 - irq connected to pin 2
-  attachInterrupt(1,AS3935Irq,RISING);
-  // uncomment line below and comment out line above for Arduino Mega 2560, irq still connected to pin 2
-  // attachInterrupt(0,AS3935Irq,RISING);
+  // attachInterrupt(1,AS3935Irq,RISING);
+  // uncomment line below and comment out line above for Arduino Mega 2560, irq still connected to pin 2, same for atmega328p
+  attachInterrupt(0,AS3935Irq,RISING);
 }
 
 void loop()
@@ -136,13 +123,6 @@ void printAS3935Registers()
   Serial.println(spikeRejection,DEC);
   Serial.print("Watchdog threshold is: ");
   Serial.println(watchdogThreshold,DEC);  
-}
-
-// this is implementation of SPI transfer that gets passed to AS3935
-// you can (hopefully) wrap any SPI implementation in this
-byte SPItransfer(byte sendByte)
-{
-  return SPI.transfer(sendByte);
 }
 
 // this is irq handler for AS3935 interrupts, has to return void and take no arguments

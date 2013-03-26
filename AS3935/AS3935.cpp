@@ -18,54 +18,62 @@
 */
 
 #include "AS3935.h"
+// I2c library by Wayne Truchsess
+#include <I2C.h>
 
-AS3935::AS3935(byte (*SPItransfer)(byte),int csPin, int irq)
+AS3935::AS3935(uint8_t irq,uint8_t addr)
 {
-	SPITransferFunc = SPItransfer;
-	_CSPin = csPin;
+    //configure the uint16_terrupt
 	_IRQPin = irq;
-	digitalWrite(_CSPin,HIGH);
-	pinMode(_CSPin,OUTPUT);
+    //configure the address
+	_ADDR = addr;
 	pinMode(_IRQPin,INPUT);
 }
 
-byte AS3935::_SPITransfer2(byte high, byte low)
+uint8_t AS3935::_ffsz(uint8_t mask)
 {
-	digitalWrite(_CSPin,LOW);
-	SPITransferFunc(high);
-	byte regval = SPITransferFunc(low);
-	digitalWrite(_CSPin,HIGH);
-	return regval;	
-}
-
-byte AS3935::_rawRegisterRead(byte reg)
-{
-	return _SPITransfer2((reg & 0x3F) | 0x40, 0);
-}
-
-byte AS3935::_ffsz(byte mask)
-{
-	byte i = 0;
+	uint8_t i = 0;
 	if (mask)
 		for (i = 1; ~mask & 1; i++)
 			mask >>= 1;
 	return i;
 }
 
-void AS3935::registerWrite(byte reg, byte mask, byte data)
+void AS3935::registerWrite(uint8_t reg, uint8_t mask, uint8_t data)
 {
-	byte regval = _rawRegisterRead(reg);
+  Serial.print("regW ");
+  Serial.print(reg,HEX);
+  Serial.print(" ");
+  Serial.print(mask,HEX);
+  Serial.print(" ");
+  Serial.print(data,HEX);
+  Serial.print(" read ");
+  
+    //read 1 uint8_t
+    I2c.read((uint8_t)_ADDR, (uint8_t)reg, (uint8_t)0x01);
+    //put it to regval
+	uint8_t regval = I2c.receive();
+  Serial.print(regval,HEX);
+    //do masking
 	regval &= ~(mask);
 	if (mask)
 		regval |= (data << (_ffsz(mask)-1));
 	else
 		regval |= data;
-	_SPITransfer2(reg & 0x3F, regval);
+    Serial.print(" write ");
+    Serial.print(regval,HEX);
+    Serial.print(" err ");
+    //write the register back
+    Serial.println(I2c.write(_ADDR, reg, regval),HEX);    
 }
 
-byte AS3935::registerRead(byte reg, byte mask)
+uint8_t AS3935::registerRead(uint8_t reg, uint8_t mask)
 {
-	byte regval = _rawRegisterRead(reg);
+	//read 1 uint8_t
+    I2c.read((uint8_t)_ADDR, (uint8_t)reg, (uint8_t)0x01);
+    //put it to regval
+	uint8_t regval = I2c.receive();
+    //mask
 	regval = regval & mask;
 	if (mask)
 		regval >>= (_ffsz(mask)-1);
@@ -74,16 +82,17 @@ byte AS3935::registerRead(byte reg, byte mask)
 
 void AS3935::reset()
 {
-	_SPITransfer2(0x3C, 0x96);
+    //write to 0x3c, value 0x96
+	I2c.write((uint8_t)_ADDR, (uint8_t)0x3c, (uint8_t)0x96);
 	delay(2);
 }
 
 bool AS3935::calibrate()
 {
-	int target = 3125, currentcount = 0, bestdiff = INT_MAX, currdiff = 0;
-	byte bestTune = 0, currTune = 0;
+	uint16_t target = 3125, currentcount = 0, bestdiff = INT_MAX, currdiff = 0;
+	uint8_t bestTune = 0, currTune = 0;
 	unsigned long setUpTime;
-	int currIrq, prevIrq;
+	uint16_t currIrq, prevIrq;
 	// set lco_fdiv divider to 0, which translates to 16
 	// so we are looking for 31250Hz on irq pin
 	// and since we are counting for 100ms that translates to number 3125
@@ -124,8 +133,11 @@ bool AS3935::calibrate()
 	delay(2);
 	registerWrite(AS3935_DISP_LCO,0);
 	// and now do RCO calibration
-	powerUp();
+    I2c.write((uint8_t)_ADDR, (uint8_t)0x3D, (uint8_t)0x96);
+	delay(3);
 	// if error is over 109, we are outside allowed tuning range of +/-3.5%
+    Serial.print("Difference ");
+    Serial.println(bestdiff);
 	return bestdiff > 109?false:true;
 }	
 
@@ -137,11 +149,11 @@ void AS3935::powerDown()
 void AS3935::powerUp()
 {
 	registerWrite(AS3935_PWD,0);
-	_SPITransfer2(0x3D, 0x96);
+    I2c.write((uint8_t)_ADDR, (uint8_t)0x3D, (uint8_t)0x96);
 	delay(3);
 }
 
-int AS3935::interruptSource()
+uint16_t AS3935::interruptSource()
 {
 	return registerRead(AS3935_INT);
 }
@@ -156,18 +168,18 @@ void AS3935::enableDisturbers()
 	registerWrite(AS3935_MASK_DIST,0);
 }
 
-int AS3935::getMinimumLightnings()
+uint16_t AS3935::getMinimumLightnings()
 {
 	return registerRead(AS3935_MIN_NUM_LIGH);
 }
 
-int AS3935::setMinimumLightnings(int minlightning)
+uint16_t AS3935::setMinimumLightnings(uint16_t minlightning)
 {
 	registerWrite(AS3935_MIN_NUM_LIGH,minlightning);
 	return getMinimumLightnings();
 }
 
-int AS3935::lightningDistanceKm()
+uint16_t AS3935::lightningDistanceKm()
 {
 	return registerRead(AS3935_DISTANCE);
 }
@@ -182,34 +194,34 @@ void AS3935::setOutdoors()
 	registerWrite(AS3935_AFE_GB,AS3935_AFE_OUTDOOR);
 }
 
-int AS3935::getNoiseFloor()
+uint16_t AS3935::getNoiseFloor()
 {
 	return registerRead(AS3935_NF_LEV);
-}
+} 
 
-int AS3935::setNoiseFloor(int noisefloor)
+uint16_t AS3935::setNoiseFloor(uint16_t noisefloor)
 {
 	registerWrite(AS3935_NF_LEV,noisefloor);
 	return getNoiseFloor();
 }
 
-int AS3935::getSpikeRejection()
+uint16_t AS3935::getSpikeRejection()
 {
 	return registerRead(AS3935_SREJ);
 }
 
-int AS3935::setSpikeRejection(int srej)
+uint16_t AS3935::setSpikeRejection(uint16_t srej)
 {
 	registerWrite(AS3935_SREJ, srej);
 	return getSpikeRejection();
 }
 
-int AS3935::getWatchdogThreshold()
+uint16_t AS3935::getWatchdogThreshold()
 {
 	return registerRead(AS3935_WDTH);
 }
 
-int AS3935::setWatchdogThreshold(int wdth)
+uint16_t AS3935::setWatchdogThreshold(uint16_t wdth)
 {
 	registerWrite(AS3935_WDTH,wdth);
 	return getWatchdogThreshold();
