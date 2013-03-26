@@ -1,42 +1,14 @@
 AS3935-Arduino-Library
 ======================
 
-AS3935 Franklin Lightning Sensor™ IC by AMS Arduino library
+AS3935 Franklin Lightning Sensor™ IC by AMS Arduino library for I2C
 
-Link to manufacturer site:
+This is the modification of the library by Raivisr
+&nbsp;&nbsp;&nbsp;&nbsp;http://www.rrkb.lv
 
-&nbsp;&nbsp;&nbsp;&nbsp;http://www.ams.com/eng/Products/RF-Products/Lightning-Sensor/AS3935
+See his page for detais. This modification changes SPI to I2C communication.
 
-Link to TAUTIC ELECTRONICS LLC Lightning Sensor Board on tindie.com:
-
-&nbsp;&nbsp;&nbsp;&nbsp;https://tindie.com/TAUTIC/as3935-lightning-sensor-board/
-
-Link to my blog:
-
-&nbsp;&nbsp;&nbsp;&nbsp;http://www.rrkb.lv/musings
-
-To use is chip/board, you will definitely need to read it's datasheet, so
-I am not going to dwell into details of tuning and using this small gem.
-
-Tested with Arduino 1.0.1 on Arduino Mega 2560 and mpide-0023-20120903-newlib on
-chipKIT Max32.
-
-Connections between breakout by TAUTIC LLC and chipKIT Max32 or Arduino Mega 2560
-for example code to work:
-
-	breakout pin    arduino pin
-
-	VDD             3.3V - Max32, 5V - Mega 2560
-	GND             GND
-	MOSI            51
-	MISO            50
-	SCLK            52
-	IRQ             2
-	SI              GND
-	CS              53
-
-NB! on Mega 2560 you have to comment out attachInterrupt(1,AS3935Irq,RISING); line and
-uncomment attachInterrupt(0,AS3935Irq,RISING); line
+Tested with Arduino 1.0.3 on Arduino Pro Mini. 
 
 Short function reference:
 

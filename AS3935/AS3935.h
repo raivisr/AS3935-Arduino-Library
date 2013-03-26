@@ -30,17 +30,17 @@
 
 // register access macros - register address, bitmask
 #define AS3935_AFE_GB		0x00, 0x3E
-#define AS3935_PWD		0x00, 0x01
+#define AS3935_PWD		    0x00, 0x01
 #define AS3935_NF_LEV		0x01, 0x70
-#define AS3935_WDTH		0x01, 0x0F
+#define AS3935_WDTH		    0x01, 0x0F
 #define AS3935_CL_STAT		0x02, 0x40
 #define AS3935_MIN_NUM_LIGH	0x02, 0x30
-#define AS3935_SREJ		0x02, 0x0F
-#define AS3935_LCO_FDIV	0x03, 0xC0
+#define AS3935_SREJ		    0x02, 0x0F
+#define AS3935_LCO_FDIV	    0x03, 0xC0
 #define AS3935_MASK_DIST	0x03, 0x20
-#define AS3935_INT		0x03, 0x0F
-#define AS3935_DISTANCE	0x07, 0x1F
-#define AS3935_DISP_LCO	0x08, 0x80
+#define AS3935_INT		    0x03, 0x0F
+#define AS3935_DISTANCE	    0x07, 0x1F
+#define AS3935_DISP_LCO	    0x08, 0x80
 #define AS3935_DISP_SRCO	0x08, 0x40
 #define AS3935_DISP_TRCO	0x08, 0x20
 #define AS3935_TUN_CAP		0x08, 0x0F
@@ -52,34 +52,31 @@
 class AS3935
 {
 public:
-	AS3935(byte (*SPItransfer)(byte),int csPin,int irq);
-	void registerWrite(byte reg, byte mask, byte data);
-	byte registerRead(byte reg, byte mask);
+	AS3935(uint8_t irq,uint8_t addr);
+	void registerWrite(uint8_t reg, uint8_t mask, uint8_t data);
+	uint8_t registerRead(uint8_t reg, uint8_t mask);
 	void reset();
 	bool calibrate();
 	void powerDown();
 	void powerUp();
-	int interruptSource();
+	uint16_t interruptSource();
 	void disableDisturbers();
 	void enableDisturbers();
-	int getMinimumLightnings();
-	int setMinimumLightnings(int minlightning);
-	int lightningDistanceKm();
+	uint16_t getMinimumLightnings();
+	uint16_t setMinimumLightnings(uint16_t minlightning);
+	uint16_t lightningDistanceKm();
 	void setIndoors();
 	void setOutdoors();
-	int getNoiseFloor();
-	int setNoiseFloor(int noisefloor);
-	int getSpikeRejection();
-	int setSpikeRejection(int srej);
-	int getWatchdogThreshold();
-	int setWatchdogThreshold(int wdth);
+	uint16_t getNoiseFloor();
+	uint16_t setNoiseFloor(uint16_t noisefloor);
+	uint16_t getSpikeRejection();
+	uint16_t setSpikeRejection(uint16_t srej);
+	uint16_t getWatchdogThreshold();
+	uint16_t setWatchdogThreshold(uint16_t wdth);
 	void clearStats();
 private:
-	byte (*SPITransferFunc)(byte);
-        byte _SPITransfer2(byte high, byte low);
-	int  _CSPin, _IRQPin;
-	byte _rawRegisterRead(byte reg);
-	byte _ffsz(byte mask);
+	uint8_t _ADDR, _IRQPin;
+	uint8_t _ffsz(uint8_t mask);
 };
 
 #endif
