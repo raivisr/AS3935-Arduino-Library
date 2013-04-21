@@ -39,7 +39,11 @@ NB! on Mega 2560 you have to comment out attachInterrupt(1,AS3935Irq,RISING); li
 uncomment attachInterrupt(0,AS3935Irq,RISING); line
 
 Short function reference:
-
+	AS3935(byte (*SPItransfer)(byte),int csPin,int irq);
+&nbsp;&nbsp;&nbsp;&nbsp;object constructor, first parameter is pointer to a function that
+&nbsp;&nbsp;&nbsp;&nbsp;does SPI transfer, second parameter is pin that has to be used as
+&nbsp;&nbsp;&nbsp;&nbsp;chip select and third parameter is interrupt pin
+	
 	void registerWrite(byte reg, byte mask, byte data)
 &nbsp;&nbsp;&nbsp;&nbsp;write to specified register specified data using specified bitmask,
 &nbsp;&nbsp;&nbsp;&nbsp;the rest of the register remains intact
