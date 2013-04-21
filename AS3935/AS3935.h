@@ -76,7 +76,8 @@ public:
 	void clearStats();
 private:
 	byte (*SPITransferFunc)(byte);
-	int _CSPin, _IRQPin;
+        byte _SPITransfer2(byte high, byte low);
+	int  _CSPin, _IRQPin;
 	byte _rawRegisterRead(byte reg);
 	byte _ffsz(byte mask);
 };
